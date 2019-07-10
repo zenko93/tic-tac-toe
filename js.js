@@ -18,7 +18,7 @@ let board = document.getElementById('board');
 let rows = document.getElementsByClassName('row');
 let newGameBtn = document.getElementById('newGame');
 
-
+fillDomElementsModel();
 createBoard();
 startGameBtn.addEventListener('click', startGame);
 board.addEventListener('click', fillBoard);
@@ -32,6 +32,13 @@ function togglePlayer (){
     }
     else {
         currentPlayer = players.player1;
+    }
+}
+
+
+function fillDomElementsModel() {
+    for (let i = 0; i < boardSize; i++) {
+        domElementsModel.push([]);
     }
 }
 
@@ -71,10 +78,6 @@ function createBoard (){
     }
 }
 
-
-for (let i = 0; i < boardSize; i++) {
-    domElementsModel.push([]);
-}
 
 
 function fillBoard(event) {
@@ -133,12 +136,7 @@ function checkLines(){
 
 function notifyWinner() {
     if(checkDiagonal() || checkLines()){
-        if(currentPlayer === players.player1){
-            alert(`Победил ${players.name1}`);
-        }
-        else {
-            alert(`Победил ${players.name2}`);
-        }
+        currentPlayer === players.player1? alert(`Победил ${players.name1}`): alert(`Победил ${players.name2}`);
         flagIsWin = true;
     }
 }
