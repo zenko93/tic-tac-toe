@@ -1,149 +1,177 @@
 
-let startGame = document.getElementById('startGame');
-let player1;
-let player2;
-startGame.onclick = function (event){
-    let target = event.target;
-
-    if (target.id === 'startGame'){
-        let game = document.getElementById('game');
-        game.style.visibility = 'visible';
-        startGame.style.display = 'none';
-
-        player1 = prompt("Введите имя игрока за крестики", 'Игрок 1');
-        player2 = prompt("Введите имя игрока за нолики", 'Игрок 2');
-    }
-        let playerNameTd1 = document.getElementById('player1');
-        let playerNameTd2 = document.getElementById('player2');
-
-        playerNameTd1.innerHTML = player1;
-        playerNameTd2.innerHTML = player2;
-
-        alert(`Начинает ${player1} за крестики`);
+let players = {
+    name1: '',
+    name2: '',
+    player1: 'X',
+    player2: 'O',
+    countWins1: 0,
+    countWins2: 0,
 };
 
+const boardSize = 3;
+let currentPlayer = players.player2;
+let domElementsModel = [];
+let flagIsWin = false;
+
+let startGameBtn = document.getElementById('startGameBtn');
+let board = document.getElementById('board');
+let rows = document.getElementsByClassName('row');
+let newGameBtn = document.getElementById('newGame');
 
 
-let rows = 3;
-let column = 3;
+createBoard();
+startGameBtn.addEventListener('click', startGame);
+board.addEventListener('click', fillBoard);
+newGameBtn.addEventListener('click', newGame);
 
-for (let i=0; i < rows; i++){
-    document.getElementById('board').innerHTML +='<div class="rows"></div>';
-    document.getElementsByClassName('rows')[i].setAttribute('dataX', i);
-    for (let j = 0; j < column; j++) {
-        document.getElementsByClassName('rows')[i].innerHTML +='<div class="column"></div>';
-        let row = document.getElementsByClassName('rows');
-        let col = row[i].childNodes;
-        col[j].setAttribute('dataY', j);
+
+
+function togglePlayer (){
+    if(currentPlayer === players.player1){
+        currentPlayer = players.player2;
+    }
+    else {
+        currentPlayer = players.player1;
     }
 }
 
 
-let step = 0;
-let mas = [];
-
-for (let i = 0; i < rows; i++) {
-    mas.push([]);
-}
-
-
-let board = document.getElementById('board');
-board.onclick = function (event) {
+function startGame(event){
     let target = event.target;
 
-    if (target.className === 'column') {
+    if (target.id === 'startGameBtn'){
+        let game = document.getElementById('game');
+        game.classList.remove('hide');
+        startGameBtn.classList.add('hide');
 
-        if (step % 2 === 0) {
-            target.innerHTML = 'X';
-        }
-        else {
-            target.innerHTML = 'O';
+        players.name1 = prompt("Введите имя игрока за крестики", 'Игрок 1');
+        players.name2 = prompt("Введите имя игрока за нолики", 'Игрок 2');
+    }
+        let playerNameTd1 = document.getElementById('playersName1');
+        let playerNameTd2 = document.getElementById('playersName2');
+
+        playerNameTd1.innerHTML = players.name1;
+        playerNameTd2.innerHTML = players.name2;
+
+        alert(`Начинает ${players.name1} за крестики`);
+}
+
+
+function createBoard (){
+    for (let i=0; i < boardSize; i++){//сделать отдельную функцию
+        let div = document.createElement('div');
+        div.className = ('row');
+        board.appendChild(div);
+        rows[i].setAttribute('dataX', i);
+        for (let j = 0; j < boardSize; j++) {
+            rows[i].innerHTML +='<div class="cell"></div>';
+            let cols = rows[i].childNodes;
+            cols[j].setAttribute('dataY', j);
         }
     }
-    step++;
+}
+
+
+for (let i = 0; i < boardSize; i++) {
+    domElementsModel.push([]);
+}
+
+
+function fillBoard(event) {
+    let target = event.target;
+    if (target.className === 'cell') {
+        togglePlayer();
+        if(!target.innerHTML){
+            currentPlayer === players.player1? target.innerHTML = players.player1: target.innerHTML = players.player2;
+        }
+        else {
+            togglePlayer();
+            alert('Поле уже заполнено');
+        }
+    }
 
     let placeY = target.getAttribute('dataY');
     let placeX = target.parentElement.getAttribute('dataX');
+    domElementsModel[placeX][placeY] = target.innerHTML;
 
-    mas[placeX][placeY] = target.innerHTML;
-
-    checkWinner('X');
-    checkWinner('O');
+    notifyWinner();
     score();
-};
+    stopFillBoard();
+}
 
-function checkWinner(symb) {
+
+function stopFillBoard() {
+    if(flagIsWin){
+        board.removeEventListener('click', fillBoard);
+    }
+}
+
+
+function checkDiagonal() {
     let toRight = true;
     let toLeft = true;
-    for (let i = 0; i < rows; i++) {
-        toRight = toRight && (mas[i][i] === symb);
-        toLeft = toLeft && (mas[i][rows - 1 - i] === symb);
+    for (let i = 0; i < boardSize; i++) {
+        toRight = toRight && (domElementsModel[i][i] === currentPlayer);
+        toLeft = toLeft && (domElementsModel[i][boardSize - 1 - i] === currentPlayer);
     }
-    allert(toRight, toLeft, symb);
+    if(toLeft || toRight) return true;
+}
 
 
-    for (let i = 0; i < rows; i++) {
-        let checkR = true;
-        let checkC = true;
-        for (let j = 0; j < column; j++) {
-            checkR = checkR && (mas[i][j] === symb);
-            checkC = checkC && (mas[j][i] === symb);
+function checkLines(){
+    for (let i = 0; i < boardSize; i++) {
+        let checkRow = true;
+        let checkCol = true;
+        for (let j = 0; j < boardSize; j++) {
+            checkRow = checkRow && (domElementsModel[i][j] === currentPlayer);
+            checkCol = checkCol && (domElementsModel[j][i] === currentPlayer);
         }
-        allert(checkR, checkC, symb);
+        if(checkRow || checkCol) return true;
     }
 }
 
-let flagX = false;
-let flagY = false;
-function allert(arg1, arg2, symb) {
-    if (arg1 === true || arg2 === true) {
-        if (symb === 'X') {
-            flagX = true;
-            alert(`Победил ${player1}`);
+
+function notifyWinner() {
+    if(checkDiagonal() || checkLines()){
+        if(currentPlayer === players.player1){
+            alert(`Победил ${players.name1}`);
         }
         else {
-            flagY = true;
-            alert(`Победил ${player2}`)
+            alert(`Победил ${players.name2}`);
         }
+        flagIsWin = true;
     }
 }
 
-
-let players1Win = 0;
-let players2Win = 0;
 
 function score (){
-    let win1 = document.getElementById('win1');
-    let win2 = document.getElementById('win2');
+    let scoreWin1 = document.getElementById('scoreWin1');
+    let scoreWin2 = document.getElementById('scoreWin2');
 
-    if(flagX === true){
-        players1Win++;
-        win1.innerHTML = players1Win;
-        console.log(flagX)
-    }
-    if(flagY === true){
-        players2Win++;
-        win2.innerHTML = players2Win;
-        console.log(flagY)
+    if (flagIsWin){
+        if (currentPlayer === players.player1){
+            players.countWins1++;
+            scoreWin1.innerHTML = players.countWins1;
+        }
+        else {
+            players.countWins2++;
+            scoreWin2.innerHTML = players.countWins2;
+        }
     }
 }
 
 
-let newGame = document.getElementById('newGame');
-newGame.onclick = function (){
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < column; j++) {
-            let row = document.getElementsByClassName('rows');
-            row[i].children[j].innerHTML = '';
-            mas[i][j] = '';
-            flagX = false;
-            flagY = false;
+function newGame (){
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            rows[i].children[j].innerHTML = '';
+            domElementsModel[i][j] = '';
+            currentPlayer = players.player2;
+            flagIsWin = false;
+            board.addEventListener('click', fillBoard);
         }
     }
-    step = 0;
-};
-
-
+}
 
 
 

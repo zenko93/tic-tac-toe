@@ -9,11 +9,11 @@ html {
     padding: 0;
 }
 
-#startGame{
+#startGameBtn{
     position: absolute;
     z-index: 1;
     top: 35%;
-    left: 35%;
+    left: 40%;
     width: 250px;
     height: 90px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -22,14 +22,11 @@ html {
     font-size: 140%;
 }
 #game {
-    visibility: hidden;
     position: relative;
     margin: 50px auto;
     width: 450px;
     height: 600px;
     padding-top: 43px;
-    /*border-color: black;*/
-    /*background-color: black;*/
 }
 
 #board {
@@ -75,7 +72,7 @@ th {
     border: 1px solid white;
 }
 
-.column {
+.cell {
     width: 150px;
     height: 150px;
     float: left;
@@ -86,6 +83,10 @@ th {
     font-size: 100px;
 }
 
-.column:hover {
+.cell:hover {
     background-color: chocolate;
+}
+
+.hide {
+    display: none;
 }
