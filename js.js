@@ -17,12 +17,60 @@ let startGameBtn = document.getElementById('startGameBtn');
 let board = document.getElementById('board');
 let rows = document.getElementsByClassName('row');
 let newGameBtn = document.getElementById('newGame');
+let game = document.getElementById('game');
+let playerNameTd1 = document.getElementById('playersName1');
+let playerNameTd2 = document.getElementById('playersName2');
+let scoreWin1 = document.getElementById('scoreWin1');
+let scoreWin2 = document.getElementById('scoreWin2');
 
-fillDomElementsModel();
+
+filDomElementsModel();
 createBoard();
+
+window.addEventListener('load',  onLoad);
 startGameBtn.addEventListener('click', startGame);
 board.addEventListener('click', fillBoard);
 newGameBtn.addEventListener('click', newGame);
+window.addEventListener('beforeunload', onBeforeUnload);
+
+
+
+function onLoad(){
+    localStorageCountWins();
+    localStorage.getItem('currentPlayer') ? currentPlayer = localStorage.getItem('currentPlayer'): null;
+    if(localStorage.getItem('domElementsModel')){
+        game.classList.remove('hide');
+        startGameBtn.classList.add('hide');
+        alert(`Сейчас ход ${currentPlayer === 'O'? 'X' : 'O'}`);
+
+        let domElements = localStorage.getItem('domElementsModel');
+        let domElementsParse = JSON.parse(domElements);
+        for (let i = 0; i < boardSize; i++) {
+            for (let j = 0; j < boardSize; j++) {
+                if(domElementsParse[i][j] === undefined){
+                    domElementsParse[i][j] = '';
+                }
+                if (domElementsParse[i][j] === domElementsModel[i][j]) return;
+                else domElementsModel[i][j] = domElementsParse[i][j];
+                rows[i].children[j].innerHTML = domElementsParse[i][j];
+            }
+        }
+    }
+}
+
+
+
+function onBeforeUnload() {
+    players.name1 ? localStorage.setItem('name1', players.name1): null;
+    players.name2 ? localStorage.setItem('name2', players.name2): null;
+    players.countWins1 ? localStorage.setItem('countWin1', players.countWins1):  scoreWin1.innerHTML = players.countWins1;
+    players.countWins2 ? localStorage.setItem('countWin2', players.countWins2): scoreWin2.innerHTML = players.countWins2;
+    localStorage.setItem('currentPlayer', currentPlayer);
+
+    if(domElementsModel.some(elem => elem.includes('X'))){
+        localStorage.setItem('domElementsModel', JSON.stringify(domElementsModel));
+    }
+}
 
 
 
@@ -36,11 +84,13 @@ function togglePlayer (){
 }
 
 
-function fillDomElementsModel() {
+
+function filDomElementsModel() {
     for (let i = 0; i < boardSize; i++) {
         domElementsModel.push([]);
     }
 }
+
 
 
 function startGame(event){
@@ -54,14 +104,13 @@ function startGame(event){
         players.name1 = prompt("Введите имя игрока за крестики", 'Игрок 1');
         players.name2 = prompt("Введите имя игрока за нолики", 'Игрок 2');
     }
-        let playerNameTd1 = document.getElementById('playersName1');
-        let playerNameTd2 = document.getElementById('playersName2');
 
         playerNameTd1.innerHTML = players.name1;
         playerNameTd2.innerHTML = players.name2;
 
         alert(`Начинает ${players.name1} за крестики`);
 }
+
 
 
 function createBoard (){
@@ -92,7 +141,6 @@ function fillBoard(event) {
             alert('Поле уже заполнено');
         }
     }
-
     let placeY = target.getAttribute('dataY');
     let placeX = target.parentElement.getAttribute('dataX');
     domElementsModel[placeX][placeY] = target.innerHTML;
@@ -103,11 +151,13 @@ function fillBoard(event) {
 }
 
 
+
 function stopFillBoard() {
     if(flagIsWin){
         board.removeEventListener('click', fillBoard);
     }
 }
+
 
 
 function checkDiagonal() {
@@ -119,6 +169,7 @@ function checkDiagonal() {
     }
     if(toLeft || toRight) return true;
 }
+
 
 
 function checkLines(){
@@ -134,29 +185,43 @@ function checkLines(){
 }
 
 
+
 function notifyWinner() {
     if(checkDiagonal() || checkLines()){
-        currentPlayer === players.player1? alert(`Победил ${players.name1}`): alert(`Победил ${players.name2}`);
+        currentPlayer === players.player1 ?
+            alert(`Победил ${players.name1 || localStorage.getItem('name1')}`):
+            alert(`Победил ${players.name2 || localStorage.getItem('name2')}`);
         flagIsWin = true;
     }
 }
 
 
-function score (){
-    let scoreWin1 = document.getElementById('scoreWin1');
-    let scoreWin2 = document.getElementById('scoreWin2');
 
+function score (){
     if (flagIsWin){
         if (currentPlayer === players.player1){
             players.countWins1++;
-            scoreWin1.innerHTML = players.countWins1;
+            localStorageCountWins();
         }
         else {
             players.countWins2++;
-            scoreWin2.innerHTML = players.countWins2;
+            localStorageCountWins();
         }
     }
 }
+
+
+
+function localStorageCountWins(){
+    localStorage.getItem('countWin1') ?
+        scoreWin1.innerHTML = Number(localStorage.getItem('countWin1')) + players.countWins1 :
+        scoreWin1.innerHTML = players.countWins1;
+
+    localStorage.getItem('countWin2') ?
+        scoreWin2.innerHTML = Number(localStorage.getItem('countWin2')) + players.countWins2 :
+        scoreWin2.innerHTML = players.countWins2;
+}
+
 
 
 function newGame (){
@@ -170,6 +235,8 @@ function newGame (){
         }
     }
 }
+
+
 
 
 
