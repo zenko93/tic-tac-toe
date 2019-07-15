@@ -24,7 +24,7 @@ let scoreWin1 = document.getElementById('scoreWin1');
 let scoreWin2 = document.getElementById('scoreWin2');
 
 
-filDomElementsModel();
+domElementsModel = Array.from(Array(3), i => []);
 createBoard();
 
 window.addEventListener('load',  onLoad);
@@ -37,7 +37,7 @@ window.addEventListener('beforeunload', onBeforeUnload);
 
 function onLoad(){
     localStorageCountWins();
-    localStorage.getItem('currentPlayer') ? currentPlayer = localStorage.getItem('currentPlayer'): null;
+    if (localStorage.getItem('currentPlayer')) currentPlayer = localStorage.getItem('currentPlayer');
     if(localStorage.getItem('domElementsModel')){
         game.classList.remove('hide');
         startGameBtn.classList.add('hide');
@@ -61,8 +61,10 @@ function onLoad(){
 
 
 function onBeforeUnload() {
-    players.name1 ? localStorage.setItem('name1', players.name1): null;
-    players.name2 ? localStorage.setItem('name2', players.name2): null;
+    if(players.name1) localStorage.setItem('name1', players.name1);
+
+    if(players.name2) localStorage.setItem('name2', players.name2);
+
     players.countWins1 ? localStorage.setItem('countWin1', players.countWins1):  scoreWin1.innerHTML = players.countWins1;
     players.countWins2 ? localStorage.setItem('countWin2', players.countWins2): scoreWin2.innerHTML = players.countWins2;
     localStorage.setItem('currentPlayer', currentPlayer);
@@ -75,20 +77,7 @@ function onBeforeUnload() {
 
 
 function togglePlayer (){
-    if(currentPlayer === players.player1){
-        currentPlayer = players.player2;
-    }
-    else {
-        currentPlayer = players.player1;
-    }
-}
-
-
-
-function filDomElementsModel() {
-    for (let i = 0; i < boardSize; i++) {
-        domElementsModel.push([]);
-    }
+    currentPlayer === players.player1 ? currentPlayer = players.player2: currentPlayer = players.player1;
 }
 
 
