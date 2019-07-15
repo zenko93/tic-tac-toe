@@ -103,7 +103,7 @@ function startGame(event){
 
 
 function createBoard (){
-    for (let i=0; i < boardSize; i++){//сделать отдельную функцию
+    for (let i=0; i < boardSize; i++){
         let div = document.createElement('div');
         div.className = ('row');
         board.appendChild(div);
