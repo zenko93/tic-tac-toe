@@ -77,7 +77,7 @@ function onBeforeUnload() {
 
 
 function togglePlayer (){
-    currentPlayer === players.player1 ? currentPlayer = players.player2: currentPlayer = players.player1;
+    currentPlayer = currentPlayer === players.player1 ? players.player2: players.player1;
 }
 
 
@@ -123,7 +123,7 @@ function fillBoard(event) {
     if (target.className === 'cell') {
         togglePlayer();
         if(!target.innerHTML){
-            currentPlayer === players.player1? target.innerHTML = players.player1: target.innerHTML = players.player2;
+            target.innerHTML = currentPlayer === players.player1? players.player1: players.player2;
         }
         else {
             togglePlayer();
